@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration >
+    !-- 配置项目名称 -->
+    <property name="projectName" value="elk-kafka"/>
+    <!-- 默认配置路径 -->
+    <property name="LOG_HOME" value="./logs"/>
+    <!-- 配置日志 -->
+    <!-- 彩色日志依赖的渲染类 -->
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+    <conversionRule conversionWord="wex"
+                    converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
+    <conversionRule conversionWord="wEx"
+                    converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
+    <!-- 彩色日志格式 -->
+    <property name="CONSOLE_LOG_PATTERN"
+              value="${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(--){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+    <!-- Console 输出设置 -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>-->
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+    <!-- com.alibaba.dubbo是dubbo服务的包，在如何是info一下的级别会产生大量的启动日志，调成WARN减少日志输出 -->
+    <logger name="org.springframework" level="WARN" />
+    <logger name="com.alibaba.dubbo" level="WARN" />
+    <logger name="org.springframework.session.web.http" level="INFO" />
+
+    <!-- dao层的包，把这个包的打印日志级别调成 DEBUG级别可以看到sql执行 -->
+    <!--<logger name="com.gt.mapper" level="DEBUG" />-->
+    <!--<logger name="com.gt.eat.dao" level="INFO"/>-->
+
+
+    <appender name="file"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 日志日常打印文件 -->
+        <!-- 配置日志所生成的目录以及生成文件名的规则 在logs/mylog-2017-06-31.0.log.zip -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- <fileNamePattern>${LOG_HOME}/mylog-%d{yyyy-MM-dd}.%i.log</fileNamePattern> -->
+            <fileNamePattern>${LOG_HOME}/eat_erp-%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+            <!-- 如果按天来回滚，则最大保存时间为365天，365天之前的都将被清理掉 -->
+            <maxHistory>365</maxHistory>
+            <!-- 日志总保存量为10GB -->
+            <totalSizeCap>10GB</totalSizeCap>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!--文件达到 最大128MB时会被压缩和切割 -->
+                <maxFileSize>128MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+
+
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <!-- <level>DEBUG</level> -->
+            <level>INFO</level>
+        </filter>
+        <!-- 文件输出的日志 的格式 -->
+        <encoder>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+            </pattern>
+            <charset>UTF-8</charset> <!-- 此处设置字符集 -->
+        </encoder>
+        <!-- Safely log to the same file from multiple JVMs. Degrades performance! -->
+        <prudent>false</prudent>
+    </appender>
+
+
+
+    <!-- elk日志集成 -->
+    <!--<appender name="LOGSTASH_APPENDER" class="net.logstash.logback.appender.LogstashTcpSocketAppender">-->
+        <!--<param name="Encoding" value="UTF-8"/>-->
+        <!--<destination>10.2.8.41:5044</destination>-->
+        <!--<encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder">-->
+            <!--&lt;!&ndash; 2019年07月02日15:39:37 动态配置各环境日志索引 &ndash;&gt;-->
+            <!--<customFields>{"index":"${projectName}-${spring.profiles.active}"}</customFields>-->
+        <!--</encoder>-->
+        <!--<keepAliveDuration>5 minutes</keepAliveDuration>-->
+    <!--</appender>-->
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread, %X{X-B3-TraceId:-},%X{X-B3-SpanId:-}] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <!-- 设置不同模式下，启用不同的日志级别 -->
+
+    <!-- 开发模式 console -->
+    <springProfile name="dev">
+        <root level="info"> <!-- 此时debug级别的信息会被过滤 -->
+            <appender-ref ref="console"/>
+            <appender-ref ref="file" />
+        </root>
+    </springProfile>
+
+    <!-- 测试模式 console/file -->
+    <springProfile name="test">
+        <root level="info"> <!-- 此时debug级别的信息会被过滤 -->
+            <appender-ref ref="console"/>
+            <appender-ref ref="file" />
+            <appender-ref ref="LOGSTASH_APPENDER"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="pre">
+        <root level="info"> <!-- 此时debug级别的信息会被过滤 -->
+            <appender-ref ref="console"/>
+            <appender-ref ref="file" />
+            <appender-ref ref="LOGSTASH_APPENDER"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="prod">
+        <root level="info"> <!-- 此时debug级别的信息会被过滤 -->
+            <appender-ref ref="console"/>
+            <appender-ref ref="file" />
+            <appender-ref ref="LOGSTASH_APPENDER"/>
+        </root>
+    </springProfile>
+
+    <!-- This is the kafkaAppender -->
+    <appender name="kafkaAppender" class="com.github.danielwegener.logback.kafka.KafkaAppender">
+        <encoder>
+            <!--<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>-->
+            <pattern>{"theme":"bbb","thread":"%thread","level":"%-5level","msg":"%msg"}</pattern>
+        </encoder>
+        <topic>goods_mylog</topic>
+        <keyingStrategy class="com.github.danielwegener.logback.kafka.keying.NoKeyKeyingStrategy" />
+        <deliveryStrategy class="com.github.danielwegener.logback.kafka.delivery.AsynchronousDeliveryStrategy" />
+
+        <!-- Optional parameter to use a fixed partition -->
+        <!-- <partition>0</partition> -->
+
+        <!-- Optional parameter to include log timestamps into the kafka message -->
+         <!--<appendTimestamp>true</appendTimestamp>-->
+
+        <!-- each <producerConfig> translates to regular kafka-client config (format: key=value) -->
+        <!-- producer configs are documented here: https://kafka.apache.org/documentation.html#newproducerconfigs -->
+        <!-- bootstrap.servers is the only mandatory producerConfig -->
+        <producerConfig>bootstrap.servers=192.168.33.100:9092</producerConfig>
+
+        <!-- this is the fallback appender if kafka is not available. -->
+        <appender-ref ref="STDOUT" />
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="kafkaAppender" />
+    </root>
+
+
+
+
+</configuration>
