@@ -53,7 +53,7 @@ public class test {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         object.put("requstTime",df.format(new Date()));
         object.put("name","byron_Chu1");
-        log.error("test=====>test111111");
+        log.error("test=====>test22222");
         ListenableFuture<SendResult<String, Object>> future = kafkaTemplate.send("goods_mylog", JSONObject.toJSONString(object));
         future.addCallback(new ListenableFutureCallback<SendResult<String, Object>>() {
             @Override
