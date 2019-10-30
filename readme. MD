@@ -1,2 +1,25 @@
 Docker安装ELK :https://blog.csdn.net/qq1031893936/article/details/93798646
 Docker 安装kafka: https://blog.csdn.net/wyq232417/article/details/88753417
+logstash.conf配置文件:
+
+input {
+  kafka {
+    bootstrap_servers => "192.168.33.100:9092"
+    topics => ["goods_mylog"]
+  }
+}
+
+#filter {
+#  mutate {
+#    add_field => [ "[fields][path]", "%{[path]}"]
+#	add_field => [ "message]", "%{[message]}"]
+ # }
+#}
+
+output {
+  stdout { codec => rubydebug }
+  elasticsearch {
+    hosts => ["192.168.33.100:9200"]
+	index => "goods_mylog"
+  }
+}

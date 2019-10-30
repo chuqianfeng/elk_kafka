@@ -1,7 +1,7 @@
 spring:
   data:
     elasticsearch:
-      cluster-name: myes
+      cluster-name: myes #必须和/etc/elasticsearch.yml中的集群名字相同
       cluster-nodes: 192.168.33.100:9300
       repositories:
         enabled: true
