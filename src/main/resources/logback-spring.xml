@@ -38,7 +38,7 @@
         <!-- 配置日志所生成的目录以及生成文件名的规则 在logs/mylog-2017-06-31.0.log.zip -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- <fileNamePattern>${LOG_HOME}/mylog-%d{yyyy-MM-dd}.%i.log</fileNamePattern> -->
-            <fileNamePattern>${LOG_HOME}/eat_erp-%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+            <fileNamePattern>${LOG_HOME}/demo-%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
             <!-- 如果按天来回滚，则最大保存时间为365天，365天之前的都将被清理掉 -->
             <maxHistory>365</maxHistory>
             <!-- 日志总保存量为10GB -->
