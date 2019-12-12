@@ -10,7 +10,6 @@ import org.springframework.data.elasticsearch.annotations.Document;
 @Document(indexName = "mymayikt",type = "user")
 @Data
 public class UserEntity {
-    @Id
     private String id;
 
     private String name;
@@ -18,4 +17,14 @@ public class UserEntity {
     private Integer age;
 
     private Integer sex;
+
+    public UserEntity(String id, String name, Integer age, Integer sex) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+        this.sex = sex;
+    }
+
+    public UserEntity() {
+    }
 }
