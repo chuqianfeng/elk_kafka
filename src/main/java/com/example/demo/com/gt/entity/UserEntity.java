@@ -26,5 +26,14 @@ public class UserEntity {
     }
 
     public UserEntity() {
+        System.out.println("无参构造方法...");
+    }
+
+    public void initMethod(){
+        System.out.println("initMethod>>>>>>");
+    }
+
+    public void destroyMethod(){
+        System.out.println("destroyMethod>>>>>>");
     }
 }
